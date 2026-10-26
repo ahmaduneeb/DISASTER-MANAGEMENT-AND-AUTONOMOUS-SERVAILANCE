@@ -1,0 +1,8 @@
+{
+  "mission": "outputs/run/figures/mission_map.png",
+  "convergence": "outputs/run/figures/fitness_convergence.png",
+  "paths": "outputs/run/figures/evolved_paths.png",
+  "coverage": "outputs/run/figures/coverage_heatmap.png",
+  "coverage_evolution": "outputs/run/figures/coverage_evolution.png",
+  "pareto": "outputs/run/figures/pareto_front.png"
+}

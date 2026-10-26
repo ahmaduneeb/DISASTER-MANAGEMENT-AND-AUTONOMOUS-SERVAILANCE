@@ -1,0 +1,73 @@
+{
+  "best_fitness": 0.646679654147139,
+  "best_metrics": {
+    "fitness": 0.646679654147139,
+    "coverage": 0.7157348020165422,
+    "detection": 0.9082642363118961,
+    "detection_rate": 0.9258633511024541,
+    "energy": 35.873059981288996,
+    "energy_frac": 0.9964738883691387,
+    "time": 206.51557655116738,
+    "time_frac": 0.8604815689631974,
+    "risk": 0.12972548236927847,
+    "distance": 239.00717606507877,
+    "range_frac": 0.6118529602105909,
+    "no_fly_fraction": 0.0,
+    "penalty": 0.0,
+    "n_active": 3,
+    "objectives": [
+      -0.7157348020165422,
+      -0.9082642363118961,
+      0.9964738883691387,
+      0.8604815689631974,
+      0.12972548236927847
+    ]
+  },
+  "evaluations": 4701,
+  "generations_run": 80,
+  "termination_reason": "max_generations",
+  "elapsed_seconds": 24.507956693000324,
+  "mission": {
+    "grid_size": 50,
+    "base": [
+      2,
+      2
+    ],
+    "n_drones": 5,
+    "n_patrol": 8,
+    "n_priority_zones": 4,
+    "n_hazards": 5,
+    "n_no_fly": 4,
+    "n_targets": 24,
+    "sensor_radius": 5.0,
+    "max_range": 175.0,
+    "max_time": 240.0,
+    "energy_budget": 36.0,
+    "min_coverage": 0.55,
+    "seed": 42
+  },
+  "ga": {
+    "population_size": 60,
+    "generations": 80,
+    "crossover_rate": 0.9,
+    "mutation_rate": 0.2,
+    "tournament_size": 4,
+    "elitism": 2,
+    "immigrant_fraction": 0.04,
+    "mutation_sigma": 1.6,
+    "stall_limit": 35,
+    "mode": "weighted",
+    "seed": 7
+  },
+  "weights": {
+    "coverage": 0.45,
+    "detection": 0.15,
+    "energy": 0.1,
+    "time": 0.1,
+    "safety": 0.2,
+    "penalty_nofly": 4.0,
+    "penalty_coverage": 3.0,
+    "penalty_range": 2.0,
+    "penalty_time": 2.0
+  }
+}

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uav-disaster-strategy"
+version = "1.0.0"
+description = "Multi-objective genetic algorithm for UAV disaster surveillance and deployment"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "AI Assignment Team", email = "student@bahria.edu.pk" },
+]
+dependencies = [
+  "numpy>=1.26",
+  "matplotlib>=3.8",
+  "python-docx>=1.1",
+]
+
+[project.scripts]
+uav-strategy = "uav_strategy.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["uav_strategy*"]
