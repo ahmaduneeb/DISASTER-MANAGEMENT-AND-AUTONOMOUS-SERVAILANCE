@@ -133,7 +133,8 @@ Expected: 28 tests passing.
     outputs/ui_runs/<job_id>/    dashboard runs (genome, history,
                                  Pareto archive, config, figures)
     outputs/ui_previews/         cached mission previews
-    docs/                        DOCX + PDF report
+    docs/                        DOCX + PDF reports
+    docs/ANALYSIS_REPORT.*       analysis report (PDF, DOCX, Markdown)
 
 ---------------------------------------------------------------------
 8. TROUBLESHOOTING

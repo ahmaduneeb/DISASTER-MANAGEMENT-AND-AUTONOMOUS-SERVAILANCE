@@ -54,6 +54,11 @@ The sensitivity and random-search comparison figures are under
 [`outputs/experiments/`](outputs/experiments/), and the technical report is
 [`REPORT.md`](REPORT.md) / [`docs/TECHNICAL_REPORT.pdf`](docs/TECHNICAL_REPORT.pdf).
 
+A companion analysis report covers the chromosome and fitness-weight rationale,
+hyperparameter sensitivity, and the evolved solution's uniqueness against random search:
+[`docs/ANALYSIS_REPORT.pdf`](docs/ANALYSIS_REPORT.pdf) (editable:
+[`docs/ANALYSIS_REPORT.docx`](docs/ANALYSIS_REPORT.docx)).
+
 ---
 
 ## Repository structure
@@ -89,7 +94,7 @@ uav-strategy/
 │   ├── experiments/       # Sensitivity, baseline and comparison figures
 │   ├── ui_runs/           # Dashboard runs (generated on demand)
 │   └── ui_previews/       # Cached mission previews (generated on demand)
-├── docs/                  # TECHNICAL_REPORT.docx / .pdf
+├── docs/                  # TECHNICAL_REPORT + ANALYSIS_REPORT (DOCX/PDF/MD)
 ├── REPORT.md              # Technical report (Markdown source)
 ├── requirements.txt
 └── pyproject.toml
