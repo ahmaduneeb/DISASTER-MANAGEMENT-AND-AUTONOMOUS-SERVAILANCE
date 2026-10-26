@@ -6,6 +6,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 
@@ -218,7 +219,11 @@ class GeneticStrategyEngine:
             self._archive_metrics = [self._archive_metrics[i] for i in keep_idx]
 
     # -------------------------------------------------------------------- run
-    def run(self, verbose: bool = False) -> GAResult:
+    def run(
+        self,
+        verbose: bool = False,
+        progress_callback: Callable[[dict], None] | None = None,
+    ) -> GAResult:
         start = time.perf_counter()
         self.evaluations = 0
         self._archive_genomes, self._archive_objectives, self._archive_metrics = [], [], []
@@ -233,6 +238,21 @@ class GeneticStrategyEngine:
         best_genome = pop[best_idx].copy()
         best_eval = evaluations[best_idx]
         best_fitness = float(best_eval.fitness)
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "generation": 0,
+                    "generations": cfg.generations,
+                    "best": best_fitness,
+                    "average": float(np.mean(fitness)),
+                    "coverage": best_eval.coverage,
+                    "detection": best_eval.detection,
+                    "energy_frac": best_eval.energy_frac,
+                    "risk": best_eval.risk,
+                    "diversity": 0.0,
+                    "progress": 0.0,
+                }
+            )
         stall = 0
         termination = "max_generations"
         generation = 0
@@ -329,6 +349,14 @@ class GeneticStrategyEngine:
             history.append(record)
             if generation in checkpoints:
                 snapshots.append((generation, best_genome.copy()))
+            if progress_callback is not None:
+                progress_callback(
+                    {
+                        **record,
+                        "generations": cfg.generations,
+                        "progress": generation / max(cfg.generations, 1),
+                    }
+                )
 
             if verbose and (generation % 10 == 0 or generation == 1):
                 print(

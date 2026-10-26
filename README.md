@@ -73,13 +73,22 @@ uav-strategy/
 │   ├── experiments.py     # Sensitivity analysis + baseline study
 │   ├── visualize.py       # All plots (Agg backend)
 │   ├── simulation.py      # End-to-end run + artefact generation
+│   ├── webapp.py          # Flask dashboard (background jobs + JSON API)
+│   ├── templates/         # Dashboard markup (index.html)
+│   ├── static/            # Dashboard CSS + JavaScript
 │   └── cli.py             # `python -m uav_strategy ...`
-├── tests/                 # 19 unit tests
+├── app.py                 # `python app.py` launches the browser dashboard
+├── run_windows.bat        # One-click Windows setup + dashboard
+├── run_linux.sh           # One-command Linux/macOS setup + dashboard
+├── commands.txt           # Linux/macOS command reference
+├── tests/                 # 28 unit tests
 ├── scripts/
 │   └── build_report.py    # Generates REPORT.md, DOCX and PDF from run data
 ├── outputs/
 │   ├── run/               # Reference simulation artefacts and figures
-│   └── experiments/       # Sensitivity, baseline and comparison figures
+│   ├── experiments/       # Sensitivity, baseline and comparison figures
+│   ├── ui_runs/           # Dashboard runs (generated on demand)
+│   └── ui_previews/       # Cached mission previews (generated on demand)
 ├── docs/                  # TECHNICAL_REPORT.docx / .pdf
 ├── REPORT.md              # Technical report (Markdown source)
 ├── requirements.txt
@@ -89,6 +98,29 @@ uav-strategy/
 ---
 
 ## Quick start
+
+### Windows
+
+Double-click **`run_windows.bat`**. It finds Python 3.10+, creates `.venv`,
+installs the requirements, and starts the dashboard at
+[http://127.0.0.1:5000](http://127.0.0.1:5000).
+
+```bat
+run_windows.bat
+run_windows.bat --port 8000 --no-browser
+```
+
+### Linux / macOS
+
+```bash
+./run_linux.sh                 # setup + install + launch
+./run_linux.sh --port 8000     # custom port
+```
+
+See [`commands.txt`](commands.txt) for the full Linux/macOS command reference,
+including manual setup, CLI runs, tests and troubleshooting.
+
+### Manual setup
 
 ```bash
 python3 -m venv .venv
@@ -109,6 +141,31 @@ python -m unittest discover -s tests -v
 ```
 
 > Tested with Python 3.14 and NumPy 2.5. The code targets Python 3.10+.
+
+### Web dashboard
+
+Prefer a browser to the CLI? Start the local dashboard:
+
+```bash
+python app.py                 # opens http://127.0.0.1:5000
+# or
+python -m uav_strategy ui --port 8000 --no-browser
+```
+
+The dashboard lets you:
+
+- choose grid size, fleet size, patrol points and a random seed;
+- tune population, generations, mutation rate, tournament size and
+  weighted-elite vs NSGA-II Pareto survival;
+- rebalance the five objective weights with presets or sliders;
+- preview the generated mission map before running;
+- watch fitness, coverage, energy and hazard risk update live while the GA runs;
+- inspect trajectories, coverage heatmaps, convergence, coverage evolution and the
+  Pareto front, then download the genome, history, Pareto archive and config as JSON.
+
+Runs are saved under `outputs/ui_runs/<job_id>/` and previews under
+`outputs/ui_previews/`. Missions are generated server-side at 50 × 50 by default, with
+range, time, energy and sensor budgets scaled automatically to the chosen grid size.
 
 ### CLI options
 
@@ -202,6 +259,7 @@ Hard constraints are handled by a combination of **repair** and **penalty**:
 | Fitness convergence (best vs average) | `outputs/run/figures/fitness_convergence.png` |
 | Flight paths and coverage heatmaps across generations | `outputs/run/figures/evolved_paths.png`, `coverage_heatmap.png`, `coverage_evolution.png` |
 | Brief technical report (3–5 pages) | `REPORT.md`, `docs/TECHNICAL_REPORT.pdf` |
+| Interactive browser UI for configuring and running the engine | `python app.py`, `uav_strategy/webapp.py` |
 | Sensitivity analysis and random-search comparison | `outputs/experiments/`, report §5.2–5.3 |
 
 ---

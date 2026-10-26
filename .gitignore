@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 *.aux
 *.log
+outputs/ui_runs/
+outputs/ui_previews/

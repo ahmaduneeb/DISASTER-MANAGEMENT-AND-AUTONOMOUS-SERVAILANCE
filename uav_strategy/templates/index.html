@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#060a12">
+  <title>AEGIS · UAV Strategy Engine</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="M24 3 42 13v22L24 45 6 35V13L24 3Z" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M24 13v22M13 19l22 12M35 19 13 31" stroke="currentColor" stroke-width="1.2" opacity=".65"/>
+          <circle cx="24" cy="24" r="4.2" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <span class="eyebrow">Disaster Management · Autonomous Surveillance</span>
+        <h1>AEGIS <span>/ Strategy Engine</span></h1>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill" id="engineStatus"><span class="status-dot"></span><span id="engineStatusText">Engine ready</span></div>
+      <a class="text-link" href="#method">How it works <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ------------------------------------------------------------ controls -->
+    <aside class="panel sidebar">
+      <div class="side-head">
+        <div>
+          <span class="eyebrow">Configuration</span>
+          <h2>Mission control</h2>
+        </div>
+        <span class="mini-badge">GA</span>
+      </div>
+      <p class="side-intro">Tune the environment and evolutionary search, then run the optimiser locally.</p>
+
+      <form id="runForm" autocomplete="off">
+        <section class="control-block">
+          <div class="block-label"><span>01</span> Environment</div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Grid size</span>
+              <select name="grid_size" id="gridSize">
+                <option value="30">30 × 30</option>
+                <option value="40">40 × 40</option>
+                <option value="50" selected>50 × 50</option>
+                <option value="60">60 × 60</option>
+                <option value="70">70 × 70</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Seed</span>
+              <input type="number" name="seed" id="seed" value="7" min="0" max="999999" step="1">
+            </label>
+            <label class="field">
+              <span>UAVs</span>
+              <input type="number" name="n_drones" value="5" min="2" max="8" step="1">
+            </label>
+            <label class="field">
+              <span>Patrol points</span>
+              <input type="number" name="n_patrol" value="8" min="4" max="12" step="1">
+            </label>
+          </div>
+        </section>
+
+        <section class="control-block">
+          <div class="block-label"><span>02</span> Genetic algorithm</div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Population</span>
+              <input type="number" name="population" value="40" min="8" max="120" step="1">
+            </label>
+            <label class="field">
+              <span>Generations</span>
+              <input type="number" name="generations" value="40" min="3" max="150" step="1">
+            </label>
+            <label class="field">
+              <span>Tournament</span>
+              <input type="number" name="tournament_size" value="4" min="2" max="12" step="1">
+            </label>
+            <label class="field">
+              <span>Survival mode</span>
+              <select name="mode">
+                <option value="weighted">Weighted elite</option>
+                <option value="pareto">NSGA-II Pareto</option>
+              </select>
+            </label>
+          </div>
+          <label class="field range-field">
+            <span>Mutation rate <output id="mutationOut">0.20</output></span>
+            <input type="range" name="mutation_rate" id="mutationRate" min="0.01" max="0.60" step="0.01" value="0.20">
+            <span class="range-scale"><i>exploit</i><i>explore</i></span>
+          </label>
+        </section>
+
+        <section class="control-block">
+          <div class="block-label"><span>03</span> Objective weighting</div>
+          <div class="preset-grid" id="presetGrid">
+            <button type="button" class="preset active" data-preset="balanced">Balanced</button>
+            <button type="button" class="preset" data-preset="coverage">Coverage first</button>
+            <button type="button" class="preset" data-preset="safety">Safety first</button>
+            <button type="button" class="preset" data-preset="efficiency">Efficiency</button>
+          </div>
+          <div class="weights" id="weightSliders">
+            <label class="weight-row">
+              <span class="weight-name"><i class="swatch swatch-cov"></i>Coverage</span>
+              <input type="range" name="w_coverage" min="0" max="1" step="0.01" value="0.45">
+              <output>0.45</output>
+            </label>
+            <label class="weight-row">
+              <span class="weight-name"><i class="swatch swatch-det"></i>Detection</span>
+              <input type="range" name="w_detection" min="0" max="1" step="0.01" value="0.15">
+              <output>0.15</output>
+            </label>
+            <label class="weight-row">
+              <span class="weight-name"><i class="swatch swatch-ener"></i>Energy</span>
+              <input type="range" name="w_energy" min="0" max="1" step="0.01" value="0.10">
+              <output>0.10</output>
+            </label>
+            <label class="weight-row">
+              <span class="weight-name"><i class="swatch swatch-time"></i>Time</span>
+              <input type="range" name="w_time" min="0" max="1" step="0.01" value="0.10">
+              <output>0.10</output>
+            </label>
+            <label class="weight-row">
+              <span class="weight-name"><i class="swatch swatch-safe"></i>Safety</span>
+              <input type="range" name="w_safety" min="0" max="1" step="0.01" value="0.20">
+              <output>0.20</output>
+            </label>
+          </div>
+          <p class="micro-copy">Weights are normalised server-side to sum to 1.0.</p>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="runBtn">
+            <span class="btn-pulse"></span>
+            <span>Run optimisation</span>
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="btn btn-ghost" id="previewBtn">Preview map</button>
+        </div>
+        <p class="form-error" id="formError" role="alert" hidden></p>
+      </form>
+    </aside>
+
+    <!-- ------------------------------------------------------------ workspace -->
+    <section class="workspace">
+      <div class="hero" id="hero">
+        <div class="hero-copy">
+          <span class="tag"><span class="tag-dot"></span>Multi-objective evolutionary planning</span>
+          <h2>Deploy smarter.<br><em>Cover what matters.</em></h2>
+          <p class="hero-text">A genetic strategy engine that jointly evolves deployment points, patrol trajectories, sensor schedules and leg speeds across a volatile disaster grid.</p>
+          <div class="hero-stats">
+            <div><b>190</b><span>genes per strategy</span></div>
+            <div><b>05</b><span>competing objectives</span></div>
+            <div><b>03</b><span>spatial crossover ops</span></div>
+          </div>
+          <div class="hero-note"><span class="pulse-ring"></span>Configure the mission on the left, then launch a run. Results stream in live.</div>
+        </div>
+        <div class="preview-card panel">
+          <div class="preview-head">
+            <div><span class="eyebrow">Live mission map</span><h3>Operational theatre</h3></div>
+            <span class="mini-badge" id="previewMeta">seed 7</span>
+          </div>
+          <div class="preview-frame" id="previewFrame">
+            <div class="preview-loading" id="previewLoading">Generating map…</div>
+            <img id="previewImg" alt="Generated mission map with hazard plumes, priority zones and no-fly airspace">
+          </div>
+          <div class="preview-legend">
+            <span><i class="legend-swatch hazard"></i>Hazard plume</span>
+            <span><i class="legend-swatch priority"></i>Priority zone</span>
+            <span><i class="legend-swatch nofly"></i>No-fly</span>
+            <span><i class="legend-swatch target"></i>Target</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="panel run-panel" id="runPanel" hidden aria-live="polite">
+        <div class="run-head">
+          <div>
+            <span class="eyebrow" id="runPhase">Optimising</span>
+            <h2 id="runTitle">Evolving fleet strategy</h2>
+          </div>
+          <div class="run-clock"><span class="clock-dot"></span><span id="runClock">00:00</span></div>
+        </div>
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-meta"><span id="genLabel">Generation 0 / 40</span><span id="progressPct">0%</span></div>
+        <div class="live-grid">
+          <div class="live-card"><span>Best fitness</span><b id="liveBest">—</b></div>
+          <div class="live-card"><span>Coverage</span><b id="liveCoverage">—</b></div>
+          <div class="live-card"><span>Energy</span><b id="liveEnergy">—</b></div>
+          <div class="live-card"><span>Hazard risk</span><b id="liveRisk">—</b></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-head"><span>Best vs average fitness</span><span class="chart-key"><i class="key-best"></i>best<i class="key-avg"></i>average</span></div>
+          <canvas id="liveChart" aria-label="Live fitness convergence chart"></canvas>
+        </div>
+        <p class="run-hint" id="runHint">The engine is evaluating candidate strategies. Figures are rendered when the run completes.</p>
+      </section>
+
+      <section id="errorPanel" class="panel error-panel" hidden>
+        <div class="error-icon">!</div>
+        <div><h3>Run failed</h3><p id="errorText"></p><button class="btn btn-ghost" id="retryBtn" type="button">Try again</button></div>
+      </section>
+
+      <section id="results" class="results" hidden>
+        <div class="results-head">
+          <div>
+            <span class="eyebrow">Run complete</span>
+            <h2>Evolved strategy</h2>
+            <p id="resultSubtitle">Selected best compromise from the final population.</p>
+          </div>
+          <div class="result-actions">
+            <a class="btn btn-ghost btn-small" id="downloadGenome" download>Best genome</a>
+            <a class="btn btn-ghost btn-small" id="downloadSummary" download>Run summary</a>
+          </div>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid"></div>
+
+        <div class="result-meta" id="resultMeta"></div>
+
+        <div class="figure-panel panel">
+          <div class="tabs" id="resultTabs" role="tablist">
+            <button class="tab active" data-tab="paths" role="tab">Trajectories</button>
+            <button class="tab" data-tab="coverage" role="tab">Coverage heatmap</button>
+            <button class="tab" data-tab="convergence" role="tab">Convergence</button>
+            <button class="tab" data-tab="evolution" role="tab">Coverage evolution</button>
+            <button class="tab" data-tab="pareto" role="tab">Pareto front</button>
+            <button class="tab" data-tab="mission" role="tab">Mission map</button>
+          </div>
+          <div class="figure-panels">
+            <figure class="tab-panel active" data-panel="paths">
+              <img id="figPaths" alt="Evolved UAV trajectories">
+              <figcaption>Final deployment and patrol trajectories. Stars mark deployment points; rings show active sensor nodes.</figcaption>
+            </figure>
+            <figure class="tab-panel" data-panel="coverage">
+              <img id="figCoverage" alt="Final sensor coverage heatmap">
+              <figcaption>Fused noisy-OR detection probability. Bright cells are covered by one or more UAV sensors.</figcaption>
+            </figure>
+            <figure class="tab-panel" data-panel="convergence">
+              <img id="figConvergence" alt="Fitness convergence plot">
+              <figcaption>Best versus average fitness and the genotypic diversity maintained by mutation and immigrants.</figcaption>
+            </figure>
+            <figure class="tab-panel" data-panel="evolution">
+              <img id="figEvolution" alt="Coverage evolution across generations">
+              <figcaption>Best-genome coverage footprints at generations 0, 25%, 50%, 75% and the final generation.</figcaption>
+            </figure>
+            <figure class="tab-panel" data-panel="pareto">
+              <img id="figPareto" alt="Pareto trade-off surface">
+              <figcaption>Non-dominated strategies in coverage–energy–risk space. The star is the scalarised best compromise.</figcaption>
+            </figure>
+            <figure class="tab-panel" data-panel="mission">
+              <img id="figMission" alt="Mission environment map">
+              <figcaption>The hazard field, priority zones, restricted airspace and weighted targets used for this run.</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="panel config-output">
+          <div class="config-head"><h3>Saved artefacts</h3><span>JSON</span></div>
+          <div class="download-grid">
+            <a id="dlBest" download><span>best_genome.json</span><small>Complete 190-gene strategy</small></a>
+            <a id="dlHistory" download><span>history.json</span><small>Per-generation fitness trace</small></a>
+            <a id="dlPareto" download><span>pareto_archive.json</span><small>Non-dominated alternatives</small></a>
+            <a id="dlConfig" download><span>config.json</span><small>Exact mission & GA settings</small></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel method" id="method">
+        <div class="method-head">
+          <span class="eyebrow">Under the hood</span>
+          <h2>Evolution, not enumeration.</h2>
+        </div>
+        <div class="method-grid">
+          <article><span class="method-index">01</span><h3>Hybrid chromosome</h3><p>Deployment coordinates, ordered waypoints, per-node sensor power, per-leg speed and fleet activation are encoded in one 190-gene strand.</p></article>
+          <article><span class="method-index">02</span><h3>Five objectives</h3><p>Coverage and detection are maximised; energy, flight time and hazard exposure are minimised under range, no-fly and coverage constraints.</p></article>
+          <article><span class="method-index">03</span><h3>Spatial operators</h3><p>Geometric BLX-α, whole-segment swap and route-splice crossover combine with adaptive mutation and elite preservation.</p></article>
+          <article><span class="method-index">04</span><h3>Pareto archive</h3><p>Every run returns the selected compromise plus the non-dominated alternatives that trade coverage, energy and safety.</p></article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>AEGIS · UAV Strategy Engine</span>
+    <span>Genetic Algorithm · Multi-objective optimisation · Bahria University Lahore Campus</span>
+  </footer>
+
+  <script>
+    window.APP_DEFAULTS = {{ defaults | tojson }};
+    window.WEIGHT_PRESETS = {{ presets | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -35,6 +35,12 @@ def build_parser() -> argparse.ArgumentParser:
     exp.add_argument("--seeds", type=int, nargs="+", default=[11, 23])
     exp.add_argument("--quick", action="store_true", help="Single seed, fewer generations.")
 
+    ui = sub.add_parser("ui", help="Launch the local browser dashboard.")
+    ui.add_argument("--host", default="127.0.0.1")
+    ui.add_argument("--port", type=int, default=5000)
+    ui.add_argument("--debug", action="store_true")
+    ui.add_argument("--no-browser", action="store_true", help="Do not open a browser window.")
+
     sub.add_parser("report", help="Explain how to build the PDF report.")
     return parser
 
@@ -82,10 +88,22 @@ def main(argv: list[str] | None = None) -> int:
         run_all_experiments(exp, verbose=True)
         return 0
 
+    if args.command == "ui":
+        from .webapp import run_ui
+
+        run_ui(
+            host=args.host,
+            port=args.port,
+            debug=args.debug,
+            open_browser=not args.no_browser,
+        )
+        return 0
+
     if args.command == "report":
         print(
             "Run the experiments first, then build the report:\n"
             "  python -m uav_strategy experiments\n"
+            "  # optional: explore results interactively with `python -m uav_strategy ui`\n"
             "  python scripts/build_report.py\n"
             "This produces REPORT.md, docs/TECHNICAL_REPORT.docx and docs/TECHNICAL_REPORT.pdf."
         )

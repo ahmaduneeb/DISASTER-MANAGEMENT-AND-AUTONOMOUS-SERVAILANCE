@@ -1,0 +1,178 @@
+=====================================================================
+AEGIS - UAV Strategy Engine
+Linux / macOS command reference
+=====================================================================
+
+All commands below assume you are in the project root:
+
+    cd "/run/media/ahmad/New Volume/my-projects/DISASTER-MANAGEMENT-AND-AUTONOMOUS-SERVAILANCE"
+
+---------------------------------------------------------------------
+1. FIRST-TIME SETUP (run once)
+---------------------------------------------------------------------
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    python -m pip install --upgrade pip
+    python -m pip install -r requirements.txt
+
+Requirements: Python 3.10+ and an internet connection for the first
+install. The virtual environment keeps the project dependencies
+isolated from the rest of your system.
+
+---------------------------------------------------------------------
+2. RUN THE WEB DASHBOARD
+---------------------------------------------------------------------
+
+Easiest (does everything from step 1 automatically):
+
+    ./run_linux.sh
+
+If the file is not executable yet:
+
+    chmod +x run_linux.sh
+    ./run_linux.sh
+
+Manual method:
+
+    source .venv/bin/activate
+    python app.py
+
+Then open:  http://127.0.0.1:5000
+
+The browser normally opens automatically. Stop the server with
+CTRL+C in the terminal.
+
+---------------------------------------------------------------------
+3. DASHBOARD OPTIONS
+---------------------------------------------------------------------
+
+    python app.py --port 8000            # use a different port
+    python app.py --no-browser           # do not open a browser
+    python app.py --host 0.0.0.0         # allow access from other
+                                         # machines on the network
+    python app.py --debug                # development auto-reload
+
+Same options through the package CLI:
+
+    python -m uav_strategy ui --port 8000 --no-browser
+
+With LAN access, open from another device:
+
+    http://<your-linux-machine-ip>:5000
+
+Find the IP with:
+
+    hostname -I
+
+Note: the dashboard runs jobs in memory. Restarting the server clears
+the job list, but saved run files remain in outputs/ui_runs/.
+
+---------------------------------------------------------------------
+4. RUN THE GA WITHOUT THE BROWSER (CLI)
+---------------------------------------------------------------------
+
+Reference run:
+
+    source .venv/bin/activate
+    python -m uav_strategy run --generations 80 --population 60
+
+Custom run:
+
+    python -m uav_strategy run \
+      --output outputs/run \
+      --grid-size 50 \
+      --drones 5 \
+      --population 60 \
+      --generations 80 \
+      --mutation-rate 0.20 \
+      --tournament-size 4 \
+      --mode weighted \
+      --seed 7
+
+Modes: weighted (scalarised elite) or pareto (NSGA-II survival).
+Add --no-plots to skip figure generation.
+
+---------------------------------------------------------------------
+5. EXPERIMENTS AND REPORT
+---------------------------------------------------------------------
+
+Sensitivity analysis and random-search baseline:
+
+    python -m uav_strategy experiments --generations 40
+
+Quick version (fewer generations and seeds):
+
+    python -m uav_strategy experiments --quick
+
+Rebuild the technical report (Markdown + DOCX + PDF):
+
+    python scripts/build_report.py
+
+Outputs:
+
+    REPORT.md
+    docs/TECHNICAL_REPORT.docx
+    docs/TECHNICAL_REPORT.pdf
+
+---------------------------------------------------------------------
+6. TESTS
+---------------------------------------------------------------------
+
+    source .venv/bin/activate
+    python -m unittest discover -s tests -v
+
+Expected: 28 tests passing.
+
+---------------------------------------------------------------------
+7. USEFUL OUTPUT LOCATIONS
+---------------------------------------------------------------------
+
+    outputs/run/                 reference simulation + figures
+    outputs/experiments/         sensitivity + baseline results
+    outputs/ui_runs/<job_id>/    dashboard runs (genome, history,
+                                 Pareto archive, config, figures)
+    outputs/ui_previews/         cached mission previews
+    docs/                        DOCX + PDF report
+
+---------------------------------------------------------------------
+8. TROUBLESHOOTING
+---------------------------------------------------------------------
+
+"python: command not found"
+    Use python3 instead, or install Python 3.10+:
+        sudo apt install python3 python3-venv python3-pip
+
+"ensurepip is not available" / venv creation fails
+    Install the venv package:
+        sudo apt install python3-venv
+    Then delete .venv and repeat step 1.
+
+"ModuleNotFoundError: No module named 'flask'"
+    Dependencies were installed outside the virtual environment.
+    Activate the venv first:
+        source .venv/bin/activate
+        python -m pip install -r requirements.txt
+
+Port 5000 already in use
+        python app.py --port 8000
+
+Matplotlib cache warning
+    Harmless. If it persists, set a writable cache directory:
+        export MPLCONFIGDIR=/tmp/matplotlib-cache
+
+Reinstall everything from scratch
+        rm -rf .venv
+        python3 -m venv .venv
+        source .venv/bin/activate
+        python -m pip install -r requirements.txt
+
+---------------------------------------------------------------------
+9. ONE-SHOT CHEAT SHEET
+---------------------------------------------------------------------
+
+    cd "/run/media/ahmad/New Volume/my-projects/DISASTER-MANAGEMENT-AND-AUTONOMOUS-SERVAILANCE"
+    source .venv/bin/activate
+    python app.py
+
+=====================================================================

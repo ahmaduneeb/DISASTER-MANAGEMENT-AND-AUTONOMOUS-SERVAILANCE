@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from pathlib import Path
+from typing import Callable
 
 from .config import FitnessWeights, GAConfig, MissionConfig
 from .ga import GAResult, GeneticStrategyEngine
@@ -26,6 +27,7 @@ def run_simulation(
     seed: int | None = None,
     make_plots: bool = True,
     verbose: bool = True,
+    progress_callback: Callable[[dict], None] | None = None,
 ) -> tuple[GAResult, dict[str, str]]:
     """Run the GA, persist artefacts and render every required figure.
 
@@ -42,7 +44,7 @@ def run_simulation(
         ga = replace(ga, seed=seed)
 
     engine = GeneticStrategyEngine(mission, ga, weights)
-    result = engine.run(verbose=verbose)
+    result = engine.run(verbose=verbose, progress_callback=progress_callback)
 
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
